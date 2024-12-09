@@ -1,0 +1,26 @@
+\begin{figure}[p]
+
+\centering{
+
+\includegraphics[width=1\textwidth,height=\textheight]{ec_fig_3.png}
+
+}
+
+\caption{\label{fig-boxplot_smp_png}Original Figure - Audit firms'
+market share in number of PIE statutory audits (2021)}
+
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+\centering{
+
+\includegraphics[width=1\textwidth,height=\textheight]{paper_files/figure-pdf/fig-boxplot_smp-1.pdf}
+
+}
+
+\caption{\label{fig-boxplot_smp}Replicated Figure - Audit firms' market
+share in number of PIE statutory audits (2021)}
+
+\end{figure}

@@ -1,0 +1,105 @@
+---
+title: |
+  | Audit market concentration in the EU: 
+  | Corporate Decision-Making and Quantitative Analysis
+  | Winter 2024/25 - Assignment I \vspace{1cm} 
+author:
+  - name: Ulf Brüggemann
+    orcid: 0000-0002-9793-6600
+    email: u.bruggemann@hu-berlin.de
+    affiliations:
+      - TRR 266 Accounting for Transparency
+      - Humboldt-Universität zu Berlin
+  - name: Fikir Worku Edossa
+    orcid: 0009-0008-3607-4753
+    email: fikir.worku.edossa@hu-berlin.de
+    affiliations:
+      - TRR 266 Accounting for Transparency
+      - Humboldt-Universität zu Berlin
+date: today
+date-format: MMM D, YYYY [\vspace{1cm}]
+abstract: |
+  | The following short paper is demonstration on how to use open science tools in empirical accounting research. It demonstrates how one can reproduce figure 3, from @EU2024AuditMarket. In doing so, it documents and discusses, the research design choices that were made and the variations between the original and the reproduced results.
+  | \vspace{6cm}
+
+
+bibliography: references.bib
+biblio-style: apsr
+format:
+  pdf:
+    documentclass: article
+    number-sections: true
+    toc: false
+fig_caption: yes
+fontsize: 11pt
+ident: yes
+always_allow_html: yes
+header-includes:
+  - \usepackage[nolists]{endfloat}    
+  - \usepackage{setspace}\doublespacing
+  - \setlength{\parindent}{4em}
+  - \setlength{\parskip}{0em}
+  - \usepackage[hang,flushmargin]{footmisc}
+  - \usepackage{caption} 
+  - \captionsetup[table]{skip=24pt,font=bf}
+  - \usepackage{array}
+  - \usepackage{threeparttable}
+  - \usepackage{adjustbox}
+  - \usepackage{graphicx}
+  - \usepackage{csquotes}
+  - \usepackage[margin=1in]{geometry}
+---
+
+```{r setup, message=FALSE, warning=FALSE, include=FALSE}
+library(knitr)
+library(kableExtra)
+opts_chunk$set(fig.pos = 'p') # Places figures on their own pages
+opts_chunk$set(out.width = '100%', dpi=300)
+opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, cache = FALSE)
+```
+
+```{r load_results, include=FALSE}
+load("../output/results.rda")
+```
+
+
+\pagebreak
+
+
+
+# Introduction
+
+```{R}
+#| label: fig-boxplot_smp_png
+#| fig-cap: "Original Figure - Audit firms’ market share in number of PIE statutory audits (2021)"
+#| echo: false
+
+knitr::include_graphics("ec_fig_3.png")
+```
+
+```{R}
+#| label: fig-boxplot_smp
+#| fig-cap: "Replicated Figure - Audit firms’ market share in number of PIE statutory audits (2021)"
+#| echo: false
+
+replicated_figure
+```
+
+# Research Design Choices
+
+
+# Results
+
+# Conclusion
+
+
+\pagebreak
+
+\setcounter{table}{0}
+\renewcommand{\thetable}{\arabic{table}}
+
+# References {-}
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+\noindent

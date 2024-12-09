@@ -1,88 +1,52 @@
-# --- Header -------------------------------------------------------------------
-# See LICENSE file for details 
-#
-# This code pulls data from WRDS 
-# ------------------------------------------------------------------------------
-
 library(RPostgres)
 library(DBI)
+library(dplyr)
+
 
 if (!exists("cfg")) source("code/R/read_config.R")
 
-save_wrds_data <- function(df, fname) {
-  if(file.exists(fname)) {
-    file.rename(
-      fname,
-      paste0(
-        substr(fname, 1, nchar(fname) - 4), 
-        "_",
-        format(file.info(fname)$mtime, "%Y-%m-%d_%H_%M_%S"),".rds")
-    )
-  }
-  saveRDS(df, fname)
+main <- function() {
+    db <- connect_to_wrds()
+    wrds_aa <- fetch_audit_data_from_wrds(db)
+    saveRDS(wrds_aa, "data/pulled/wrds_aa.rds")
+    disconnect_from_wrds(db)
 }
 
-# --- Connect to WRDS ----------------------------------------------------------
+connect_to_wrds <- function() {
+  db <- dbConnect(
+    Postgres(),
+    host = 'wrds-pgdata.wharton.upenn.edu',
+    port = 9737,
+    user = cfg$wrds_user,
+    password = cfg$wrds_pwd,
+    sslmode = 'require',
+    dbname = 'wrds'
+  )
+  
+  message("Logged on to WRDS ...")
+  
+  return(db)
+}
 
-wrds <- dbConnect(
-  Postgres(),
-  host = 'wrds-pgdata.wharton.upenn.edu',
-  port = 9737,
-  user = cfg$wrds_user,
-  password = cfg$wrds_pwd,
-  sslmode = 'require',
-  dbname = 'wrds'
-)
+disconnect_from_wrds <- function(db) {
+  dbDisconnect(db)
+  message("Disconnected from WRDS")
+}
 
-message("Logged on to WRDS ...")
+fetch_audit_data_from_wrds <- function(db) {
+  message("Pulling audit analytics data ... ", appendLF = FALSE)
+  query <- "
+    SELECT *
+    FROM audit_europe.feed76_transparency_reports
+    LEFT JOIN audit_europe.feed70_europe_company_block USING (entity_map_fkey)
+    WHERE report_period_end_date BETWEEN '2019-12-31' AND '2023-10-31'
+  "
+  wrds_aa <- dbGetQuery(db, query)
+  unique_columns <- !duplicated(names(wrds_aa))
+  wrds_aa <- wrds_aa[, unique_columns]
+  message("done!")
 
-# --- Specify filters and variables --------------------------------------------
+  return(wrds_aa)
+}
 
-dyn_vars <- c(
-  "gvkey", "conm", "cik", "fyear", "datadate", "indfmt", "sich",
-  "consol", "popsrc", "datafmt", "curcd", "curuscn", "fyr", 
-  "act", "ap", "aqc", "aqs", "acqsc", "at", "ceq", "che", "cogs", 
-  "csho", "dlc", "dp", "dpc", "dt", "dvpd", "exchg", "gdwl", "ib", 
-  "ibc", "intan", "invt", "lct", "lt", "ni", "capx", "oancf", 
-  "ivncf", "fincf", "oiadp", "pi", "ppent", "ppegt", "rectr", 
-  "sale", "seq", "txt", "xint", "xsga", "costat", "mkvalt", "prcc_f",
-  "recch", "invch", "apalch", "txach", "aoloch",
-  "gdwlip", "spi", "wdp", "rcp"
-)
-
-dyn_var_str <- paste(dyn_vars, collapse = ", ")
-
-stat_vars <- c("gvkey", "loc", "sic", "spcindcd", "ipodate", "fic")
-stat_var_str <- paste(stat_vars, collapse = ", ")
-
-cs_filter <- "consol='C' and (indfmt='INDL' or indfmt='FS') and datafmt='STD' and popsrc='D'"
-
-
-# --- Pull Compustat data ------------------------------------------------------
-
-message("Pulling dynamic Compustat data ... ", appendLF = FALSE)
-res <- dbSendQuery(wrds, paste(
-  "select", 
-  dyn_var_str, 
-  "from COMP.FUNDA",
-  "where", cs_filter
-))
-
-wrds_us_dynamic <- dbFetch(res, n=-1)
-dbClearResult(res)
-message("done!")
-
-message("Pulling static Compustat data ... ", appendLF = FALSE)
-res2<-dbSendQuery(wrds, paste(
-  "select ", stat_var_str, "from COMP.COMPANY"
-))
-
-wrds_us_static <- dbFetch(res2,n=-1)
-dbClearResult(res2)
-message("done!")
-
-wrds_us <- merge(wrds_us_static, wrds_us_dynamic, by="gvkey")
-save_wrds_data(wrds_us, "data/pulled/cstat_us_sample.rds")
-
-dbDisconnect(wrds)
-message("Disconnected from WRDS")
+main()
