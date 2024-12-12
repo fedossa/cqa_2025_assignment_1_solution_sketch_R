@@ -9,13 +9,25 @@ library(lubridate)
 
 main <- function() {
   df <- readRDS("data/generated/filtered_data.rds")
+  results <- describe_data(df)
   country_data <- compute_country_level_audit_data(df)
   market_share_data <- calculate_market_shares(country_data)
   summary_stats <- aggregate_country_metrics(market_share_data)
   final_results <- compute_eu_averages(summary_stats)
-  replicated_figure <- plot_market_share_by_audit_network(final_results)
-  save(replicated_figure, file = "output/results.rda")
+  results$replicated_figure <- plot_market_share_by_audit_network(final_results)
+  save(results, file = "output/results.rda")
 }
+
+describe_data <- function(df) {
+  number_of_pies <- length(unique(na.omit(df$entity_map_key)))
+  number_of_pie_statutory_audits <- sum(!is.na(df$entity_map_key))
+  
+  return(list(
+    number_of_pies = number_of_pies,
+    number_of_pie_statutory_audits = number_of_pie_statutory_audits
+  ))
+}
+
 
 compute_country_level_audit_data <- function(df) {
   df <- df %>%

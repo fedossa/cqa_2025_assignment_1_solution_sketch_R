@@ -66,8 +66,28 @@ load("../output/results.rda")
 \pagebreak
 
 
-
 # Introduction
+
+This paper presents a short summary of how we addressed the first assignment. The key task of this assignment was to compute statistics on audit market concentration in the European Union (EU) by replicating Figure 3 of a report that the European Commission recently published (henceforth EC, 2024).
+
+In the next section, we discuss the research design choices that we had to make for our replication. We conclude the paper by comparing our statistics with those in the original report and discuss potential reasons for discrepancies.
+
+# Research Design Choices
+
+Our replication is based on the Audit Analytics Transparency Reports database. This database provides details that audit firms located in Europe publish in their annual transparency reports. We follow EC (2024) by focusing on transparency reports that
+
+were published by audit firms located in the European Union or Norway (identified through variable trans_report_auditor_country) and
+cover financial year 2021 (identified through variable report_year).
+Furthermore, we identify PIEs through variable entity_map_key and therefore delete observations where this variable has missing values.
+
+This procedure yields a sample of `{r} format(results$number_of_pies, big.mark= ",")` PIEs and `{r} format(results$number_of_pie_statutory_audits, big.mark= ",")` PIE statutory audits. The corresponding statistics in EC (2024) are 14,906 and 18,897, respectively – see their Figure 1.
+
+We identify Big4, CR4 and KAP10 auditors through variable auditor_network. In doing so, we take into account that some audit firms are assigned more than one network name in Audit Analytics (e.g., Baker Tilly and Mazars).
+
+
+# Results
+
+Comparing our statistics (see Figure 2 below) with those in the original report (see Figure 1 below) reveals both similarities and discrepancies.
 
 ```{R}
 #| label: fig-boxplot_smp_png
@@ -82,16 +102,12 @@ knitr::include_graphics("ec_fig_3.png")
 #| fig-cap: "Replicated Figure - Audit firms’ market share in number of PIE statutory audits (2021)"
 #| echo: false
 
-replicated_figure
+results$replicated_figure
 ```
 
-# Research Design Choices
+As to the similarities: Our statistics are almost identical in countries such Cyprus or Ireland. We also see similar patterns across countries in that market shares of Big4 audit firms tend to be highest in Northern countries (e.g., Finland, Sweden) and lowest in Eastern countries (e.g., Poland, Bulgaria).
 
-
-# Results
-
-# Conclusion
-
+As to the discrepancies: Our statistics differ substantially in countries such as Denmark or Romania. The most obvious explanation for such discrepancies are the different data sources. While EC (2024) builds on “reports from the national authorities responsible for audit oversight” (page 1), our replication uses data from audit firms’ transparency reports that Audit Analytics provides in a pre-structured format. Apparently, these data are incomplete as the statistics presented in the previous section suggest (18,897 versus `{r} format(results$number_of_pie_statutory_audits, big.mark= ",")` PIE statutory audits). This lack of data may be the result of institutional peculiarities that differ across countries. For example, joint audits are prevalent in some European countries (e.g., France) and may be incorporated differently in EC (2024) than in our replication. Furthermore, it is possible that some audit firms do not comply with the requirement to disclose a complete list of PIEs in their annual transparency report.
 
 \pagebreak
 
